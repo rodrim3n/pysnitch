@@ -49,7 +49,10 @@ def file_transfer(file_name):
                 break
             s.send(data)
         f.close()
-        time.sleep(1)
+        time.sleep(0.8)
+        s.send(bytes("EOFX", "UTF-8"))
+        time.sleep(0.8)
+
         return "File transfered."
     except:
         return "Failed to transfer a file."
@@ -62,7 +65,7 @@ def file_browser():
     while True:
         cmd = s.recv(4096)
         cmd = cmd.decode("UTF-8")
-        cmd = cmd.split(" ")
+        cmd = cmd.split("~")
 
         if cmd[0] == 'ls':
             asd = ls(cmd)
