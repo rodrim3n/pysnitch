@@ -1,2 +1,1 @@
-- Remover de la lista de connecciones los sockets que se cerraron.
 - Cuando cierro el servidor, al no cerrar las conexiones el cliente queda flipando y no conecta mas.

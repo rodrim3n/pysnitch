@@ -72,8 +72,13 @@ def refresh_connections(locking, connections):
     index = 0
     with locking:
         for each in connections:
-            print("%d)%s " % (index, each[1]))
-            index += 1
+            each[0].sendall(bytes("2", "UTF-8"))
+            data = each[0].recv(1024)
+            if (data):
+                print("%d)%s " % (index, each[1]))
+                index += 1
+            else:
+                connections.remove(each)
 
 
 def main():

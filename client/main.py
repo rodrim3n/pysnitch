@@ -98,6 +98,8 @@ def main():
         if data:
             if data == '1':
                 file_browser()
+            if data == '2':
+                s.sendall(bytes("still here", "UTF-8"))
         else:
             print("Connection lost.")
             connect_server()
