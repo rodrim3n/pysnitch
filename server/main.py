@@ -6,13 +6,14 @@ import os
 import uuid
 
 HOST = socket.gethostname()
-PORT = 1234
+PORT = 2222
 
 
 def close_connections():
 
     with locking:
         for each in connections:
+            each[0].shutdown(2)
             each[0].close()
 
 
@@ -45,20 +46,20 @@ def file_transfer(client):
 
 def file_browser(client):
 
-    client[0].send(bytes("1", "UTF-8"))
+    client[0].sendall(bytes("1", "UTF-8"))
     client_pwd = client[0].recv(4096).decode("UTF-8")
     print(client_pwd)
     exit = False
     while not exit:
         command = input("Type a command: ")
         if command == "exit":
-            client[0].send(bytes(command, "UTF-8"))
+            client[0].sendall(bytes(command, "UTF-8"))
             exit = True
             os.system("clear")
         elif command == "clear":
             os.system("clear")
         else:
-            client[0].send(bytes(command, "UTF-8"))
+            client[0].sendall(bytes(command, "UTF-8"))
             aux = command.split("~")
             if aux[0] == "cp":
                 file_transfer(client)
