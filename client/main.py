@@ -4,6 +4,9 @@ import time
 import os
 # import winreg
 
+HOST = "roll"
+PORT = 2222
+
 
 def connect_server():
 
@@ -106,8 +109,6 @@ def main():
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-HOST = "roll"
-PORT = 2222
 
 if __name__ == "__main__":
     # key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,

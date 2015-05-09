@@ -63,22 +63,24 @@ def file_browser(client):
             aux = command.split("~")
             if aux[0] == "cp":
                 file_transfer(client)
-            recibi = client[0].recv(4096).decode("UTF-8")
-            print(recibi)
+            received = client[0].recv(4096).decode("UTF-8")
+            print(received)
 
 
 def refresh_connections(locking, connections):
 
     index = 0
+    print("-----------------------------------")
     with locking:
         for each in connections:
             each[0].sendall(bytes("2", "UTF-8"))
             data = each[0].recv(1024)
             if (data):
-                print("%d)%s " % (index, each[1]))
+                print("| %d)%s %10s" % (index, each[1], "|"))
                 index += 1
             else:
                 connections.remove(each)
+    print("-----------------------------------")
 
 
 def main():
@@ -99,14 +101,14 @@ def main():
             refresh_connections(locking, connections)
 
         elif option == "2":
-            client_id = input("Choose server: ")
+            client_id = input("Choose wisely: ")
             os.system('clear')
             with locking:
                 try:
                     client = connections[int(client_id)]
+                    file_browser(client)
                 except IndexError:
-                    print("Index does not exist.")
-            file_browser(client)
+                    print("Index does not exist. \n")
         elif option == "0":
             close_connections()
             sys.exit(0)
