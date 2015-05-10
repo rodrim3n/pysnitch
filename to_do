@@ -1,1 +1,0 @@
-- Cuando cierro el servidor, al no cerrar las conexiones el cliente queda flipando y no conecta mas.

