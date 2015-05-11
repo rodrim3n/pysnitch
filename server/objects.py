@@ -36,9 +36,10 @@ class Server:
         with self.locking:
             for each in self.connections:
                 each[0].sendall(bytes("2", "UTF-8"))
-                data = each[0].recv(1024)
-                if (data):
-                    print("| %d)%s %10s" % (index, each[1], "|"))
+                username = each[0].recv(1024)
+                if (username):
+                    each.append(username.decode("UTF-8"))
+                    print("| %d)%s %s %4s" % (index, each[2], each[1], "|"))
                     index += 1
                 else:
                     self.connections.remove(each)

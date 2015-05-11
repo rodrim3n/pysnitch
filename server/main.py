@@ -5,10 +5,8 @@ HOST = socket.gethostname()
 PORT = 2222
 
 
-
 def main():
-    server = Server(HOST, PORT)
-    server.run()
+    Server(HOST, PORT).run()
 
 if __name__ == "__main__":
     main()

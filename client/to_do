@@ -1,0 +1,18 @@
+# def ls(cmd):
+#     result = []
+#     if len(cmd) == 1:
+#         cmd.append('.')
+#     try:
+#         for f in os.listdir(cmd[1]):
+#             result.append(os.stat(f).st_size)
+#             if stat.S_ISDIR(os.stat(f).st_mode):
+#                 result.append("DIR")
+#             if stat.S_ISLNK(os.stat(f).st_mode):
+#                 result.append("LNK")
+#             result.append(f)
+#             # error aca !  result = ' '.join(result)
+#     except:
+#         result = "No such file or directory."
+#     return result
+
+
