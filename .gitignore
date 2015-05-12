@@ -2,4 +2,5 @@ client/__pycache__/*
 client/.ropeproject/*
 server/__pycache__/*
 server/.ropeproject/*
+server/received/*
 .ropeproject/*

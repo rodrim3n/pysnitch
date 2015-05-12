@@ -17,5 +17,5 @@ if __name__ == "__main__":
     #                      'Software\Microsoft\Windows\CurrentVersion\Run',
     #                      0, winreg.KEY_SET_VALUE)
     # winreg.SetValueEx(key, 'ptest', 0, winreg.REG_SZ,
-    #                   "C:\Windows\System32\main.py")
+    #                   "C:\main.py")
     # key.Close()

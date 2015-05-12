@@ -1,6 +1,7 @@
 import socket
 import time
 import os
+import stat
 
 
 class Client:
@@ -70,11 +71,15 @@ class FileBrowser:
                                                  "UTF-8"))
 
     def ls(self, cmd):
-
+        result = []
         if len(cmd) == 1:
             cmd.append('.')
         try:
-            result = '  '.join(os.listdir(cmd[1]))
+            for f in os.listdir(cmd[1]):
+                if stat.S_ISDIR(os.stat(f).st_mode):
+                    f += "/"
+                result.append(f)
+            result = '  '.join(result)
         except:
             result = "No such file or directory."
         return result
@@ -87,7 +92,7 @@ class FileBrowser:
             os.chdir(cmd[1])
         except:
             return "No such file or directory."
-        return '  '.join(os.listdir())
+        return self.ls(["ls", "."])
 
     def file_transfer(self, file_name):
 
