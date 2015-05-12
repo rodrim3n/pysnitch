@@ -7,7 +7,7 @@ import stat
 class Client:
 
     def __init__(self, host, port):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket = None
         self.port = port
         self.host = host
 
@@ -28,15 +28,16 @@ class Client:
 
     def connect_server(self):
 
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connected = False
         while not connected:
             try:
+                time.sleep(1)
                 self.socket.connect((self.host, self.port))
                 connected = True
                 print("Connected.")
             except socket.error:
                 print("Trying to connect...")
-                time.sleep(3)
 
 
 class FileBrowser:
