@@ -3,7 +3,7 @@ import threading
 import os
 import sys
 import uuid
-from prettytable import PrettyTable
+from tabulate import tabulate
 
 
 class Server:
@@ -31,17 +31,17 @@ class Server:
 
     def refresh_connections(self):
 
+        table = []
         index = 0
-        print("-----------------------------------")
         with self.locking:
             for client in self.connections:
                 if client.sync():
-                    print("| %d)%s %s %4s" % (index, client.username,
-                                              client.adress, "|"))
+                    table.append((index, client.username, client.adress))
                     index += 1
                 else:
                     self.connections.remove(client)
-        print("-----------------------------------")
+        print(tabulate(table, headers=['Index', 'Name', 'Addr'],
+                       tablefmt='psql'))
 
     def run(self):
 
