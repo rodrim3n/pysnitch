@@ -3,6 +3,7 @@ import threading
 import os
 import sys
 import uuid
+from prettytable import PrettyTable
 
 
 class Server:
@@ -20,29 +21,26 @@ class Server:
         while True:
             socket, addr = self.socket.accept()
             with self.locking:
-                self.connections.append([socket, addr])
+                self.connections.append(Client(socket, addr))
 
     def close_connections(self):
 
         with self.locking:
-            for each in self.connections:
-                each[0].shutdown(2)
-                each[0].close()
+            for client in self.connections:
+                client.close()
 
     def refresh_connections(self):
 
         index = 0
         print("-----------------------------------")
         with self.locking:
-            for each in self.connections:
-                each[0].sendall(bytes("2", "UTF-8"))
-                username = each[0].recv(1024)
-                if (username):
-                    each.append(username.decode("UTF-8"))
-                    print("| %d)%s %s %4s" % (index, each[2], each[1], "|"))
+            for client in self.connections:
+                if client.sync():
+                    print("| %d)%s %s %4s" % (index, client.username,
+                                              client.adress, "|"))
                     index += 1
                 else:
-                    self.connections.remove(each)
+                    self.connections.remove(client)
         print("-----------------------------------")
 
     def run(self):
@@ -88,7 +86,7 @@ class FileBrowser:
         f = open("received/" + name, 'wb')
 
         while True:
-            l = self.client[0].recv(4096)
+            l = self.client.socket.recv(4096)
             while (l):
                 if l.endswith(bytes("EOFX", "UTF-8")):
                     u = l[:-4]
@@ -96,27 +94,44 @@ class FileBrowser:
                     break
                 else:
                     f.write(l)
-                    l = self.client[0].recv(4096)
+                    l = self.client.socket.recv(4096)
             break
         f.close()
 
     def run(self):
 
-        self.client[0].sendall(bytes("1", "UTF-8"))
-        client_pwd = self.client[0].recv(4096).decode("UTF-8")
+        self.client.socket.sendall(bytes("1", "UTF-8"))
+        client_pwd = self.client.socket.recv(4096).decode("UTF-8")
         print(client_pwd)
         exit = False
         while not exit:
             command = input("Type a command: ")
             if command == "exit":
-                self.client[0].sendall(bytes(command, "UTF-8"))
+                self.client.socket.sendall(bytes(command, "UTF-8"))
                 exit = True
                 os.system("clear")
             elif command == "clear":
                 os.system("clear")
             else:
-                self.client[0].sendall(bytes(command, "UTF-8"))
+                self.client.socket.sendall(bytes(command, "UTF-8"))
                 if command.startswith("cp"):
                     self.file_transfer()
-                received = self.client[0].recv(4096).decode("UTF-8")
+                received = self.client.socket.recv(4096).decode("UTF-8")
                 print(received)
+
+
+class Client:
+
+    def __init__(self, socket, adress):
+        self.socket = socket
+        self.adress = adress
+        self.username = None
+
+    def close(self):
+        self.socket.shutdown(2)
+        self.socket.close()
+
+    def sync(self):
+        self.socket.sendall(bytes("2", "UTF-8"))
+        self.username = self.socket.recv(1024).decode("UTF-8")
+        return True

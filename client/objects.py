@@ -32,12 +32,12 @@ class Client:
         connected = False
         while not connected:
             try:
-                time.sleep(1)
                 self.socket.connect((self.host, self.port))
                 connected = True
                 print("Connected.")
             except socket.error:
                 print("Trying to connect...")
+                time.sleep(1)
 
 
 class FileBrowser:
