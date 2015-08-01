@@ -1,6 +1,10 @@
 client/__pycache__/*
 client/.ropeproject/*
+client/objects.pyc
+
 server/__pycache__/*
 server/.ropeproject/*
 server/received/*
+server/objects.pyc
+
 .ropeproject/*

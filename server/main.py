@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/python2.7
 from objects import *
 
-HOST = socket.gethostname()
+HOST = "192.168.0.50"
 PORT = 2222
 
 

