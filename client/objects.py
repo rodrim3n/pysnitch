@@ -2,7 +2,6 @@ import socket
 import time
 import os
 import stat
-
 import commands
 
 class Client:
@@ -18,7 +17,7 @@ class Client:
             data = DataObject(self.socket.recv(4096))
 
             if data:
-                command = fetch_command(data.command)
+                command = self.fetch_command(data.command)
                 datos = command(data.args)
                 self.socket.sendall(datos)
             else:

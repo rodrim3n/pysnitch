@@ -6,7 +6,7 @@ class TestClient(unittest.TestCase):
     def test_fetch_valid_command(self):
         client = Client(123,123)
         command = client.fetch_command('ls')
-        self.assertTrue(callable(command))
+        self.assertTrue(callable(command.run))
 
     def test_fetch_invalid_command(self):
         client = Client(123,123)
