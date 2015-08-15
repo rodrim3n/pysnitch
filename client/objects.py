@@ -1,8 +1,6 @@
 import socket
-import time
-import os
-import stat
 import commands
+
 
 class Client:
 
@@ -14,18 +12,17 @@ class Client:
     def run(self):
         self.connect_server()
         while True:
-            data = DataObject(self.socket.recv(4096))
+            request = RequestParser(self.socket.recv(4096))
 
-            if data:
-                command = self.fetch_command(data.command)
-                datos = command(data.args)
-                self.socket.sendall(datos)
+            if request.command:
+                command = self.fetch_command(request.command)
+                response = command.run(request.args)
+                self.socket.sendall(response)
             else:
                 print("Connection lost.")
                 self.connect_server()
 
     def connect_server(self):
-
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connected = False
         while not connected:
@@ -40,49 +37,15 @@ class Client:
     def fetch_command(self, command_name):
         return getattr(commands, command_name)
 
-class FileBrowser:
 
-    def __init__(self, client):
-        self.client = client
+class RequestParser:
 
-    def run(self):
-
-        self.client.socket.sendall(os.getcwd())
-        while True:
-            cmd = self.client.socket.recv(4096)
-            cmd = cmd.split("~")
-
-            try:
-                asd = subprocess.check_output("listdir")
-            except:
-                asd = "Command not found."
-            self.client.socket.sendall(asd)
-            # elif cmd[0] == 'cp':
-            #     asd = self.file_transfer(cmd)
-            #     self.client.socket.sendall(bytes(asd, "UTF-8"))
-            # elif cmd[0] == 'exit':
-            #     break
-            # else:
-            #     self.client.socket.sendall(bytes("Command not found.",
-            #                                      "UTF-8"))
-
-    def file_transfer(self, file_name):
-
+    def __init__(self, request):
+        self.request = request.split("->")
+        self.command = self.request[0]
         try:
-            f = open(os.getcwd()+"/"+file_name[1], "rb")
+            self.args = self.request[1]
+        except IndexError:
+            self.args = ''
 
-            while True:
-                data = f.read(4096)
-                if not data:
-                    break
-                self.client.socket.sendall(data)
-            f.close()
-            time.sleep(0.8)
-            self.client.socket.sendall("EOFX")
-            time.sleep(0.8)
 
-            return "File transfered."
-        except:
-            self.client.socket.sendall("EOFX")
-            time.sleep(0.8)
-            return "Failed to transfer a file."

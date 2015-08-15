@@ -1,10 +1,15 @@
 client/__pycache__/*
 client/.ropeproject/*
 client/objects.pyc
+client/__init__.pyc
+client/commands/*.pyc
 
 server/__pycache__/*
 server/.ropeproject/*
 server/received/*
 server/objects.pyc
+
+test/__pycache__/*
+test/*.pyc
 
 .ropeproject/*
