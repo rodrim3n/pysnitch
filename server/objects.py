@@ -17,20 +17,17 @@ class Server:
         self.socket.listen(5)
 
     def accept_connections(self):
-
         while True:
             socket, addr = self.socket.accept()
             with self.locking:
                 self.connections.append(Client(socket, addr))
 
     def close_connections(self):
-
         with self.locking:
             for client in self.connections:
                 client.close()
 
     def refresh_connections(self):
-
         table = []
         index = 0
         with self.locking:
@@ -101,24 +98,20 @@ class FileBrowser:
 
     def run(self):
 
-        self.client.socket.sendall("1")
-        client_pwd = self.client.socket.recv(4096)
-        print(client_pwd)
         exit = False
         while not exit:
             command = raw_input("Type a command: ")
             if command == "exit":
-                self.client.socket.sendall(command)
                 exit = True
                 os.system("clear")
             elif command == "clear":
                 os.system("clear")
             else:
                 self.client.socket.sendall(command)
-                if command.startswith("cp"):
-                    self.file_transfer()
                 received = self.client.socket.recv(4096)
                 print(received)
+                # if command.startswith("cp"):
+                #     self.file_transfer()
 
 
 class Client:
@@ -133,6 +126,6 @@ class Client:
         self.socket.close()
 
     def sync(self):
-        self.socket.sendall("2")
-        self.username = self.socket.recv(1024).decode("UTF-8")
+        self.socket.sendall("sync")
+        self.username = self.socket.recv(1024)
         return True
