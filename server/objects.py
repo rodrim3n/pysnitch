@@ -120,7 +120,7 @@ class FileBrowser:
                 #     self.file_transfer()
 
 
-class Client:
+class ClientConnection:
 
     def __init__(self, socket, adress):
         self.socket = socket
