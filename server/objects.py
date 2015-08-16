@@ -40,9 +40,15 @@ class Server:
         print(tabulate(table, headers=['Index', 'Name', 'Addr'],
                        tablefmt='psql'))
 
+    def _enable_threading(self):
+        thread = threading.Thread(target=self.accept_connections)
+        thread.daemon = True
+        thread.start()
+
     def run(self):
 
-        tt = threading.Thread(target=self.accept_connections).start()
+        self._enable_threading()
+
         while True:
             print("Items to do:\n")
             print("1) Refresh connections.")
