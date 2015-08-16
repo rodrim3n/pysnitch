@@ -20,7 +20,7 @@ class Server:
         while True:
             socket, addr = self.socket.accept()
             with self.locking:
-                self.connections.append(Client(socket, addr))
+                self.connections.append(ClientConnection(socket, addr))
 
     def close_connections(self):
         with self.locking:
