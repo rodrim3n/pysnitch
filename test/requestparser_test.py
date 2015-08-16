@@ -4,22 +4,28 @@ from client.objects import RequestParser
 class TestRequestParser(unittest.TestCase):
 
     def test_parse_no_args_request(self):
-        request = 'ls'
-        request_parsed = RequestParser(request)
-        self.assertEqual(request_parsed.command, 'ls')
-        self.assertEqual(request_parsed.args, '')
+        parsed_request = RequestParser('ls;')
+        self.assertEqual(parsed_request.command, 'ls')
+        self.assertEqual(parsed_request.args, '')
 
     def test_parse_valid_request(self):
-        request = 'ls->/home/pepe/'
-        request_parsed = RequestParser(request)
-        self.assertEqual(request_parsed.command, 'ls')
-        self.assertEqual(request_parsed.args, '/home/pepe/')
+        parsed_request = RequestParser('ls;/home/pepe/')
+        self.assertEqual(parsed_request.command, 'ls')
+        self.assertEqual(parsed_request.args, '/home/pepe/')
 
     def test_parse_empty_request(self):
-        request = ''
-        request_parsed = RequestParser(request)
-        self.assertEqual(request_parsed.command, '')
-        self.assertEqual(request_parsed.args, '')
+        parsed_request = RequestParser('')
+        self.assertFalse(parsed_request.is_valid)
+
+    def test_parse_invalid_request(self):
+        parsed_request = RequestParser(';')
+        self.assertFalse(parsed_request.is_valid)
+
+    def test_custom_delimiter(self):
+        parsed_request = RequestParser('ls,/home/pepe/', ',')
+        self.assertEqual(parsed_request.command, 'ls')
+        self.assertEqual(parsed_request.args, '/home/pepe/')
+
 
 if __name__ == '__main__':
     unittest.main()

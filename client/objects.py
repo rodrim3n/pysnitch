@@ -14,12 +14,12 @@ class Client:
         while True:
             request = RequestParser(self.socket.recv(4096))
 
-            if request.command:
+            if request.is_valid:
                 command = self.fetch_command(request.command)
                 response = command.run(request.args)
                 self.socket.sendall(response)
             else:
-                print("Connection lost.")
+                print("Connection lost.")  # TODO: log shite
                 self.connect_server()
 
     def connect_server(self):
@@ -40,12 +40,15 @@ class Client:
 
 class RequestParser:
 
-    def __init__(self, request):
-        self.request = request.split("->")
-        self.command = self.request[0]
+    def __init__(self, request, delimiter=';'):
         try:
-            self.args = self.request[1]
-        except IndexError:
-            self.args = ''
+            self.delimiter = delimiter
+            self.command, self.args = self._parse_request(request)
+            self.is_valid = True if self.command else False
+        except ValueError:
+            self.is_valid = False
+
+    def _parse_request(self, request):
+        return request.split(self.delimiter)
 
 
