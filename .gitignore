@@ -1,5 +1,6 @@
 .ropeproject/*
 *.pyc
+/client/client_config.json
 
 ### VirtualEnv ###
 # Virtualenv

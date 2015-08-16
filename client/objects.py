@@ -1,5 +1,6 @@
 import socket
 import commands
+import time
 
 
 class Client:
