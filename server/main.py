@@ -12,13 +12,19 @@ except:
     print 'Wrong arguments received, defaulting to localhost:2222'
     options = {}
 
-default_options = {'-h': '0.0.0.0', '-p': 2222}
 
-# Merge received arguments with default ones
-options = dict(default_options, **options)
+def merge_options(options):
+    '''Merge received arguments with default ones'''
 
-HOST = options['-h']
-PORT = options['-p']
+    default_options = {'-h': '0.0.0.0', '-p': 2222}
+    return dict(default_options, **options)
+
+
+def main(options):
+    options = merge_options(options)
+    HOST = options['-h']
+    PORT = options['-p']
+    Server(HOST, PORT).run()
 
 if __name__ == "__main__":
-    Server(HOST, PORT).run()
+    main(options)
