@@ -130,6 +130,7 @@ class ClientConnection:
         self.socket.close()
 
     def sync(self):
-        self.socket.sendall("sync")
+        self.socket.sendall("sync;")
         self.username = self.socket.recv(1024)
         return True if self.username else False
+
