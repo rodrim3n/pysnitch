@@ -48,35 +48,17 @@ class Server:
     def run(self):
         self._enable_threading()
 
-        while True:
-            print("Items to do:\n")
-            print("1) Refresh connections.")
-            print("2) Inspect a victim.")
-            print("0) Exit.\n")
+        Menu(self).main_menu()
 
-            option = raw_input("What u want to do? ")
-
-            if option == "1":
-                os.system('clear')
-                self.refresh_connections()
-
-            elif option == "2":
-                client_id = raw_input("Choose wisely: ")
-                os.system('clear')
-                try:
-                    with self.locking:
-                        client = self.connections[int(client_id)]
-                    FileBrowser(client).run()
-                except IndexError:
-                    print("Index does not exist. \n")
-
-            elif option == "0":
-                self.close_connections()
-                sys.exit(0)
-            else:
-                print("\nPerhaps you better start from the beginning.")
-                raw_input("")
-                os.system("clear")
+        if 2:
+            client_id = raw_input("Choose wisely: ")
+            os.system('clear')
+            try:
+                with self.locking:
+                    client = self.connections[int(client_id)]
+                FileBrowser(client).run()
+            except IndexError:
+                print("Index does not exist. \n")
 
 
 class FileBrowser:
@@ -134,3 +116,62 @@ class ClientConnection:
         self.username = self.socket.recv(1024)
         return True if self.username else False
 
+
+class Menu:
+
+    def __init__(self, server):
+        self.server = server
+        self.menu_actions = {
+            'main_menu': self.main_menu,
+            '1': self.refresh_connections,
+            '2': self.choose_victim,
+            '9': self.back,
+            '0': self.exit,
+        }
+
+    def main_menu(self):
+        os.system('clear')
+        print "Welcome,\n"
+        print "Please choose the menu you want to start:"
+        print "1. Refresh Connections"
+        print "2. Choose Victim"
+        print "\n0. Quit"
+        choice = raw_input(" >>  ")
+        self.exec_menu(choice)
+        return
+
+    def exec_menu(self, choice):
+        os.system('clear')
+        ch = choice.lower()
+        if ch == '':
+            self.menu_actions['main_menu']()
+        else:
+            try:
+                self.menu_actions[ch]()
+            except KeyError:
+                print "Invalid selection, please try again.\n"
+                self.menu_actions['main_menu']()
+        return
+
+    def refresh_connections(self):
+        print "Connections !\n"
+        self.server.refresh_connections()
+        print "9. Back"
+        print "0. Quit"
+        choice = raw_input(" >>  ")
+        self.exec_menu(choice)
+
+    def choose_victim(self):
+        print "Hello Menu 2 !\n"
+        print "9. Back"
+        print "0. Quit"
+        choice = raw_input(" >>  ")
+        self.exec_menu(choice)
+        return
+
+    def back(self):
+        self.menu_actions['main_menu']()
+
+    def exit(self):
+        self.server.close_connections()
+        sys.exit()
