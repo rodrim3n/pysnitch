@@ -1,12 +1,16 @@
 
 new_session -n 'Editor'
 
-send_line 'Editor' 'vi'
-
 new_window -n 'tests'
 
 new_window -n 'console'
 
 new_window -n 'general'
 
+send_line 'Editor' 'vi'
+
 send_line 'tests' 'py.test'
+
+send_line 'console' 'ipython'
+
+send_line 'general' 'gs'

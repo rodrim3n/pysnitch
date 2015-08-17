@@ -46,7 +46,6 @@ class Server:
         thread.start()
 
     def run(self):
-
         self._enable_threading()
 
         while True:
@@ -103,7 +102,6 @@ class FileBrowser:
         f.close()
 
     def run(self):
-
         exit = False
         while not exit:
             command = raw_input("Type a command: ")
