@@ -54,22 +54,25 @@ class Server:
                 client = self.connections[int(client_id)]
             return client
         except IndexError:
-            print "Index does not exist. \n"
+            pass
 
 
 class Shell:
 
     def __init__(self, client):
         self.client = client
-        self.local_commands = ['cp', 'clear', 'exit']
+        self.local_commands = ['cp', 'clear', 'exit', 'help']
         self.stop = False
+        self.prompt = self.client.username+'@'+self.client.adress[0] + " $ "
 
     def run(self):
         while not self.stop:
-            input_command = raw_input("$ ")
+            input_command = raw_input(self.prompt)
             if input_command in self.local_commands:
                 getattr(self, input_command)()
             else:
+                input_command = self.command_adds(input_command)
+                print input_command
                 self.client.socket.sendall(input_command)
                 received = self.client.socket.recv(4096)
                 print(received)
@@ -96,6 +99,19 @@ class Shell:
 
     def exit(self):
         self.stop = True
+        os.system('clear')
+
+    def help(self):
+        print "HELP!"
+        print "I"
+        print "NEED"
+        print "SOMEBODY"
+        print "HELP!"
+
+    def command_adds(self, command):
+        command.replace(' ', ';')
+        command += ';'
+        return command
 
 
 class ClientConnection:
@@ -165,6 +181,7 @@ class Menu:
         else:
             os.system('clear')
             print "Invalid selection, please try again.\n"
+            self.show_connections()
         self.back()
         return
 
