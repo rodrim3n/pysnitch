@@ -17,7 +17,5 @@ class TestServerScript(unittest.TestCase):
         expected = {'-h': '0.0.0.0', '-p': 2222}
         self.assertEqual(expected, merge_options({}))
 
-
-
 if __name__ == '__main__':
     unittest.main()
