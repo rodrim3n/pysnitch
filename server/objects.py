@@ -116,10 +116,10 @@ class Shell:
 
 class ClientConnection:
 
-    def __init__(self, socket, adress):
+    def __init__(self, socket, adress, username=None):
         self.socket = socket
         self.adress = adress
-        self.username = None
+        self.username = username
 
     def close(self):
         self.socket.shutdown(2)
