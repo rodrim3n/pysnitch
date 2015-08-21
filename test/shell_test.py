@@ -1,13 +1,11 @@
 import unittest
 from server.objects import *
-from mock import patch
 
 
 class TestShell(unittest.TestCase):
 
     def setUp(self):
-        self.client = ClientConnection('socket', 'adress')
-        self.client.username = 'pepe'
+        self.client = ClientConnection('socket', 'adress', 'username')
         self.shell = Shell(self.client)
 
     def test_command_parser_no_args(self):
