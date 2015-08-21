@@ -71,8 +71,7 @@ class Shell:
             if input_command in self.local_commands:
                 getattr(self, input_command)()
             else:
-                input_command = self.command_adds(input_command)
-                print input_command
+                input_command = self.command_parser(input_command)
                 self.client.socket.sendall(input_command)
                 received = self.client.socket.recv(4096)
                 print(received)
@@ -108,8 +107,9 @@ class Shell:
         print "SOMEBODY"
         print "HELP!"
 
-    def command_adds(self, command):
-        command.replace(' ', ';')
+    def command_parser(self, command):
+        command = command.split(' ')
+        command = ';'.join(command)
         command += ';'
         return command
 
