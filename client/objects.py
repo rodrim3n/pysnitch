@@ -50,6 +50,5 @@ class RequestParser:
             self.is_valid = False
 
     def _parse_request(self, request):
-        return request.split(self.delimiter)
-
+        return request.split(self.delimiter)[0:2]
 
