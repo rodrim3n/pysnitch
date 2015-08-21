@@ -15,6 +15,12 @@ class TestRequestParser(unittest.TestCase):
         self.assertEqual(parsed_request.args, '/home/pepe/')
         self.assertTrue(parsed_request.is_valid)
 
+    def test_parse_lot_of_args(self):
+        parsed_request = RequestParser('ls;/home/pepe/;/something')
+        self.assertEqual(parsed_request.command, 'ls')
+        self.assertEqual(parsed_request.args, '/home/pepe/')
+        self.assertTrue(parsed_request.is_valid)
+
     def test_parse_empty_request(self):
         parsed_request = RequestParser('')
         self.assertFalse(parsed_request.is_valid)
