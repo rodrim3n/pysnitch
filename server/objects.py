@@ -3,6 +3,7 @@ import threading
 import os
 import sys
 import uuid
+from cmd import *
 from tabulate import tabulate
 
 
@@ -57,61 +58,31 @@ class Server:
             pass
 
 
-class Shell:
+class Shell(Cmd):
 
     def __init__(self, client):
+        Cmd.__init__(self)
         self.client = client
-        self.local_commands = ['cp', 'clear', 'exit', 'help']
-        self.stop = False
         self.prompt = self.client.username+'@'+self.client.adress[0] + " $ "
+        self.intro = 'Mensaje introductorio.'
 
-    def run(self):
-        while not self.stop:
-            input_command = raw_input(self.prompt)
-            if input_command in self.local_commands:
-                getattr(self, input_command)()
-            else:
-                input_command = self.command_parser(input_command)
-                self.client.socket.sendall(input_command)
-                received = self.client.socket.recv(4096)
-                print(received)
-
-    def clear(self):
+    def do_clear(self, arg):
         os.system("clear")
 
-    def cp(self):
-        name = uuid.uuid4().hex
-        f = open("received/" + name, 'wb')
+    def do_exit(self, arg):
+        return True
 
-        while True:
-            l = self.client.socket.recv(4096)
-            while (l):
-                if l.endswith("EOFX"):
-                    u = l[:-4]
-                    f.write(u)
-                    break
-                else:
-                    f.write(l)
-                    l = self.client.socket.recv(4096)
-            break
-        f.close()
-
-    def exit(self):
-        self.stop = True
-        os.system('clear')
-
-    def help(self):
-        print "HELP!"
-        print "I"
-        print "NEED"
-        print "SOMEBODY"
-        print "HELP!"
+    def default(self, arg):
+        input_command = self.command_parser(self.lastcmd)
+        self.client.socket.sendall(input_command)
+        received = self.client.socket.recv(4096)
+        print(received)
 
     def command_parser(self, command):
-        command = command.split(' ')
-        command = ';'.join(command)
-        command += ';'
+        ret = self.parseline(command)
+        command = ';'.join(list(ret)[0:2])
         return command
+
 
 
 class ClientConnection:
@@ -177,7 +148,7 @@ class Menu:
         choice = raw_input(">>  ")
         client = self.server.search_client(choice)
         if client:
-            Shell(client).run()
+            Shell(client).cmdloop()
         else:
             os.system('clear')
             print "Invalid selection, please try again.\n"
