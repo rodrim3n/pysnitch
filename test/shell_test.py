@@ -14,11 +14,11 @@ class TestShell(unittest.TestCase):
 
     def test_command_parser_single_arg(self):
         cmd = 'ls /home'
-        self.assertEqual('ls;/home;', self.shell.command_parser(cmd))
+        self.assertEqual('ls;/home', self.shell.command_parser(cmd))
 
     def test_command_parser_multiple_args(self):
         cmd = 'ls /home /pepe /asd'
-        self.assertEqual('ls;/home;/pepe;/asd;', self.shell.command_parser(cmd))
+        self.assertEqual('ls;/home /pepe /asd', self.shell.command_parser(cmd))
 
 
 if __name__ == '__main__':
