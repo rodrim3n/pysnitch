@@ -1,6 +1,7 @@
 import unittest
 from client.objects import RequestParser
 
+
 class TestRequestParser(unittest.TestCase):
 
     def test_parse_no_args_request(self):
@@ -19,6 +20,12 @@ class TestRequestParser(unittest.TestCase):
         parsed_request = RequestParser('ls;/home/pepe/;/something')
         self.assertEqual(parsed_request.command, 'ls')
         self.assertEqual(parsed_request.args, '/home/pepe/')
+        self.assertTrue(parsed_request.is_valid)
+
+    def test_parse_spaced_args(self):
+        parsed_request = RequestParser('ls;/home/pepe something/')
+        self.assertEqual(parsed_request.command, 'ls')
+        self.assertEqual(parsed_request.args, '/home/pepe something/')
         self.assertTrue(parsed_request.is_valid)
 
     def test_parse_empty_request(self):
