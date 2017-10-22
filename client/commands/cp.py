@@ -1,6 +1,7 @@
 import os
 import time
 
+
 def run(*args):
     socket = 'viene por args'
     file_name = 'viene por args'
@@ -23,4 +24,3 @@ def run(*args):
         socket.sendall("EOFX")
         time.sleep(0.8)
         return "Failed to transfer a file."
-

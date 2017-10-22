@@ -5,7 +5,7 @@ from server.objects import *
 class TestShell(unittest.TestCase):
 
     def setUp(self):
-        self.client = ClientConnection('socket', 'adress', 'username')
+        self.client = ClientConnection('socket', 'address', 'username')
         self.shell = Shell(self.client)
 
     def test_command_parser_no_args(self):

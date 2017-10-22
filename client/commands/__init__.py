@@ -1,5 +1,5 @@
-import ls
-import pwd
-import cp
-import cd
-import sync
+import commands.cd
+import commands.cp
+import commands.ls
+import commands.pwd
+import commands.sync

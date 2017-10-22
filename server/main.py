@@ -1,7 +1,9 @@
-#!/usr/bin/python2.7
-from objects import *
+#!/usr/bin/env python
+
 import sys
 import getopt
+
+from server import Server
 
 # This script can receive a host and a port -> 'h:p:'
 
@@ -9,7 +11,7 @@ try:
     options = getopt.getopt(sys.argv[1:], 'h:p:')
     options = dict(options[0])
 except:
-    print 'Wrong arguments received, defaulting to localhost:2222'
+    print('Wrong arguments received, defaulting to localhost:2222')
     options = {}
 
 
@@ -25,6 +27,7 @@ def main(options):
     HOST = options['-h']
     PORT = options['-p']
     Server(HOST, PORT).run()
+
 
 if __name__ == "__main__":
     main(options)
