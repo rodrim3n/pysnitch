@@ -2,6 +2,7 @@
 
 import os
 import sys
+
 from cmd import Cmd
 from tabulate import tabulate
 
@@ -22,8 +23,8 @@ class Shell(Cmd):
 
     def default(self, arg):
         input_command = self.command_parser(self.lastcmd)
-        self.client.socket.sendall(input_command.encode('utf-8'))
-        received = self.client.socket.recv(4096).decode('utf-8')
+        self.client.send(input_command)
+        received = self.client.recv()
         print(received)
 
     def command_parser(self, command):

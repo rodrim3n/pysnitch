@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from contextlib import suppress
 import socket
 import threading
-from contextlib import suppress
 
 from menu import Menu
+from utils import decrypt, encrypt
 
 
 class Server(object):
@@ -25,7 +26,8 @@ class Server(object):
         while True:
             socket, addr = self.socket.accept()
             with self.locking:
-                self.connections.append(ClientConnection(socket, addr))
+                client = ClientConnection(socket, addr)
+                self.connections.append(client)
 
     def close_connections(self):
         with self.locking:
@@ -68,6 +70,12 @@ class ClientConnection(object):
         self.socket.close()
 
     def sync(self):
-        self.socket.sendall("sync;".encode('utf-8'))
-        self.username = self.socket.recv(1024).decode('utf-8')
+        self.send("sync;")
+        self.username = self.recv()
         return True if self.username else False
+
+    def send(self, data):
+        self.socket.sendall(encrypt(data))
+
+    def recv(self):
+        return decrypt(self.socket.recv(2048))

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from contextlib import suppress
+import rsa
 
 
 class RequestParser(object):
@@ -30,3 +31,11 @@ def windows_setup():
             key, 'ptest', 0, _winreg.REG_SZ, "C:\Python27\Scripts\main.lnk")
 
         key.Close()
+
+
+def encrypt(data, pubkey):
+    return rsa.encrypt(data.encode('utf-8'), pubkey)
+
+
+def decrypt(data, privkey):
+    return rsa.decrypt(data, privkey).decode('utf-8')

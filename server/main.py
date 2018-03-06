@@ -22,12 +22,8 @@ def merge_options(options):
     return dict(default_options, **options)
 
 
-def main(options):
+if __name__ == "__main__":
     options = merge_options(options)
     HOST = options['-h']
     PORT = options['-p']
     Server(HOST, PORT).run()
-
-
-if __name__ == "__main__":
-    main(options)

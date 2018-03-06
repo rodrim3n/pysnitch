@@ -1,28 +1,30 @@
 # -*- coding: utf-8 -*-
 
 import socket
-import commands
 import time
-from utils import RequestParser
+
+from utils import RequestParser, encrypt, decrypt
+import commands
 
 
 class Client(object):
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, public_key):
         self.socket = None
         self.port = port
         self.host = host
+        self.public_key = public_key
 
     def run(self):
         self.connect_server()
         while True:
-            request = RequestParser(self.socket.recv(4096).decode('utf-8'))
+            request = RequestParser(self.recv())
 
             if request.is_valid:
                 output = self.exec_command(request.command, request.args)
-                self.socket.sendall(output.encode('utf-8'))
+                self.send(output)
             else:
-                print("Connection lost.")  # TODO: log shite
+                print("Connection lost.")
                 self.connect_server()
 
     def connect_server(self):
@@ -43,3 +45,9 @@ class Client(object):
         else:
             output = 'Unknown command.'
         return output
+
+    def send(self, data):
+        self.socket.sendall(encrypt(data, self.public_key))
+
+    def recv(self):
+        return decrypt(self.socket.recv(2048), self.private_key)
