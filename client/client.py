@@ -3,7 +3,8 @@
 import socket
 import time
 
-from utils import RequestParser, encrypt, decrypt
+from utils import RequestParser
+from encrypter import AESEncrypter
 import commands
 
 
