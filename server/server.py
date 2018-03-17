@@ -4,8 +4,8 @@ from contextlib import suppress
 import socket
 import threading
 
+from encrypter import AESEncrypter
 from menu import Menu
-from utils import decrypt, encrypt
 
 
 class Server(object):
@@ -64,6 +64,7 @@ class ClientConnection(object):
         self.socket = socket
         self.address = address
         self.username = username
+        self.cipher = AESEncrypter()
 
     def close(self):
         self.socket.shutdown(2)
@@ -75,7 +76,7 @@ class ClientConnection(object):
         return True if self.username else False
 
     def send(self, data):
-        self.socket.sendall(encrypt(data))
+        self.socket.sendall(self.cipher.encrypt(data))
 
     def recv(self):
-        return decrypt(self.socket.recv(2048))
+        return self.cipher.decrypt(self.socket.recv(2048))

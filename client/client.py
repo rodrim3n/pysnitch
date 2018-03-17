@@ -3,8 +3,8 @@
 import socket
 import time
 
-from utils import RequestParser
 from encrypter import AESEncrypter
+from utils import RequestParser
 import commands
 
 
@@ -15,6 +15,7 @@ class Client(object):
         self.port = port
         self.host = host
         self.public_key = public_key
+        self.cipher = AESEncrypter()
 
     def run(self):
         self.connect_server()
@@ -48,7 +49,7 @@ class Client(object):
         return output
 
     def send(self, data):
-        self.socket.sendall(encrypt(data, self.public_key))
+        self.socket.sendall(self.cipher.encrypt(data))
 
     def recv(self):
-        return decrypt(self.socket.recv(2048), self.private_key)
+        return self.cipher.decrypt(self.socket.recv(2048))

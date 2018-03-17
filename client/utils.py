@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from Crypto.Cipher import AES
 from contextlib import suppress
 
 
